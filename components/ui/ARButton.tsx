@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 interface ARButtonProps {
   onEnterAR?: () => void;
@@ -15,7 +15,7 @@ export function ARButton({ onEnterAR, onExitAR }: ARButtonProps) {
   const [isInAR, setIsInAR] = useState(false);
 
   // Check WebXR AR support on mount
-  useState(() => {
+  useEffect(() => {
     if (typeof navigator !== 'undefined' && 'xr' in navigator) {
       (navigator as Navigator & { xr: XRSystem }).xr
         ?.isSessionSupported('immersive-ar')
@@ -24,7 +24,7 @@ export function ARButton({ onEnterAR, onExitAR }: ARButtonProps) {
     } else {
       setIsARSupported(false);
     }
-  });
+  }, []);
 
   const handleARToggle = useCallback(async () => {
     if (isInAR) {

@@ -80,21 +80,24 @@ export const INPUT_CONFIG = {
 /**
  * Default audio tracks by vibe category
  */
-export const DEFAULT_AUDIO_TRACKS: Record<VibeCategory, { id: string; name: string; url: string }> = {
+export const DEFAULT_AUDIO_TRACKS: Record<VibeCategory, { id: string; name: string; url: string; vibe: VibeCategory }> = {
   calm: {
     id: 'audio-calm',
     name: 'Calm Ambience',
     url: MOCK_ASSETS.audio.calm,
+    vibe: 'calm',
   },
   upbeat: {
     id: 'audio-upbeat',
     name: 'Upbeat Vibes',
     url: MOCK_ASSETS.audio.upbeat,
+    vibe: 'upbeat',
   },
   ambient: {
     id: 'audio-ambient',
     name: 'Ambient Sounds',
     url: MOCK_ASSETS.audio.ambient,
+    vibe: 'ambient',
   },
 };
 

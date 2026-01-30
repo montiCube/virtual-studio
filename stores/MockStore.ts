@@ -79,7 +79,7 @@ export const useGalleryStore = create<GalleryState>()(
     currentIndex: 0,
     currentProduct: ALL_PRODUCTS[0] ?? null,
     isTransitioning: false,
-    audioTracks: DEFAULT_AUDIO_TRACKS as Record<VibeCategory, AudioTrack>,
+    audioTracks: DEFAULT_AUDIO_TRACKS,
 
     nextProduct: () => {
       set((state) => {

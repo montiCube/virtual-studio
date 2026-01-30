@@ -10,9 +10,18 @@ import type { VibeCategory } from '../lib/types';
 export function useAudioController() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fadeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fadeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const { currentVibe, isPlaying, volume, isMuted, setVibe, togglePlay, setVolume, toggleMute } = useAudioStore();
   const { currentProduct } = useGalleryStore();
+
+  // Cleanup fade interval helper
+  const clearFadeInterval = useCallback(() => {
+    if (fadeIntervalRef.current) {
+      clearInterval(fadeIntervalRef.current);
+      fadeIntervalRef.current = null;
+    }
+  }, []);
 
   // Initialize audio element
   useEffect(() => {
@@ -23,6 +32,7 @@ export function useAudioController() {
     }
 
     return () => {
+      clearFadeInterval();
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
@@ -31,11 +41,13 @@ export function useAudioController() {
         clearTimeout(fadeTimeoutRef.current);
       }
     };
-  }, [volume]);
+  }, [volume, clearFadeInterval]);
 
   // Fade out audio
   const fadeOut = useCallback((): Promise<void> => {
     return new Promise((resolve) => {
+      clearFadeInterval();
+      
       if (!audioRef.current) {
         resolve();
         return;
@@ -47,29 +59,31 @@ export function useAudioController() {
       const stepDuration = AUDIO_CONFIG.fadeOutDuration / steps;
       let currentStep = 0;
 
-      const fadeInterval = setInterval(() => {
+      fadeIntervalRef.current = setInterval(() => {
         currentStep++;
         audio.volume = Math.max(0, startVolume * (1 - currentStep / steps));
 
         if (currentStep >= steps) {
-          clearInterval(fadeInterval);
+          clearFadeInterval();
           audio.pause();
           resolve();
         }
       }, stepDuration);
     });
-  }, []);
+  }, [clearFadeInterval]);
 
   // Fade in audio
-  const fadeIn = useCallback((): Promise<void> => {
+  const fadeIn = useCallback((targetVol: number, muted: boolean): Promise<void> => {
     return new Promise((resolve) => {
+      clearFadeInterval();
+      
       if (!audioRef.current) {
         resolve();
         return;
       }
 
       const audio = audioRef.current;
-      const targetVolume = isMuted ? 0 : volume;
+      const targetVolume = muted ? 0 : targetVol;
       audio.volume = 0;
       audio.play().catch(() => {
         // Autoplay may be blocked - user interaction required
@@ -80,20 +94,20 @@ export function useAudioController() {
       const stepDuration = AUDIO_CONFIG.fadeInDuration / steps;
       let currentStep = 0;
 
-      const fadeInterval = setInterval(() => {
+      fadeIntervalRef.current = setInterval(() => {
         currentStep++;
         audio.volume = Math.min(targetVolume, targetVolume * (currentStep / steps));
 
         if (currentStep >= steps) {
-          clearInterval(fadeInterval);
+          clearFadeInterval();
           resolve();
         }
       }, stepDuration);
     });
-  }, [volume, isMuted]);
+  }, [clearFadeInterval]);
 
   // Change audio track with crossfade
-  const changeTrack = useCallback(async (newVibe: VibeCategory) => {
+  const changeTrack = useCallback(async (newVibe: VibeCategory, playing: boolean, vol: number, muted: boolean) => {
     if (!audioRef.current) return;
 
     await fadeOut();
@@ -102,10 +116,10 @@ export function useAudioController() {
     audioRef.current.src = track.url;
     audioRef.current.load();
 
-    if (isPlaying) {
-      await fadeIn();
+    if (playing) {
+      await fadeIn(vol, muted);
     }
-  }, [fadeOut, fadeIn, isPlaying]);
+  }, [fadeOut, fadeIn]);
 
   // Sync vibe with current product
   useEffect(() => {
@@ -123,35 +137,28 @@ export function useAudioController() {
     }
   }, [currentProduct, currentVibe, setVibe]);
 
-  // Handle vibe changes
+  // Handle vibe changes - pass current state values to avoid stale closures
   useEffect(() => {
-    changeTrack(currentVibe);
-  }, [currentVibe, changeTrack]);
+    changeTrack(currentVibe, isPlaying, volume, isMuted);
+  }, [currentVibe, changeTrack, isPlaying, volume, isMuted]);
 
-  // Handle play/pause
+  // Handle play/pause state changes
   useEffect(() => {
     if (!audioRef.current) return;
 
     if (isPlaying && !isMuted) {
-      fadeIn();
+      fadeIn(volume, isMuted);
     } else {
       fadeOut();
     }
-  }, [isPlaying, isMuted, fadeIn, fadeOut]);
+  }, [isPlaying, isMuted, volume, fadeIn, fadeOut]);
 
-  // Handle volume changes
+  // Handle direct volume changes (not during fade)
   useEffect(() => {
-    if (audioRef.current && !isMuted) {
+    if (audioRef.current && !isMuted && !fadeIntervalRef.current) {
       audioRef.current.volume = volume;
     }
   }, [volume, isMuted]);
-
-  // Handle mute toggle
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = isMuted ? 0 : volume;
-    }
-  }, [isMuted, volume]);
 
   return {
     currentVibe,
