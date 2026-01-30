@@ -1,0 +1,223 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   Base Styles
+   ============================================ */
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-shadow: rgba(0, 0, 0, 0.3);
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+/* ============================================
+   Glassmorphism Utilities
+   ============================================ */
+@layer utilities {
+  /* Glass panel effect */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px var(--glass-shadow);
+  }
+
+  /* Stronger glass effect */
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Dark glass variant */
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Glow effects */
+  .glow {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  }
+
+  .glow-primary {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+  }
+
+  .glow-accent {
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+  }
+
+  /* Text glow */
+  .text-glow {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  }
+
+  /* Smooth transitions */
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* AR-friendly high contrast text */
+  .ar-text {
+    color: white;
+    text-shadow: 
+      0 0 2px rgba(0, 0, 0, 0.8),
+      0 0 4px rgba(0, 0, 0, 0.6),
+      0 0 8px rgba(0, 0, 0, 0.4);
+  }
+
+  /* XR button styles */
+  .xr-button {
+    @apply glass px-6 py-3 rounded-full font-semibold uppercase tracking-wider;
+    @apply transition-smooth hover:scale-105 active:scale-95;
+    @apply focus:outline-none focus:ring-2 focus:ring-white/50;
+  }
+
+  .xr-button-primary {
+    @apply xr-button bg-blue-600/50 hover:bg-blue-500/60;
+  }
+
+  .xr-button-secondary {
+    @apply xr-button bg-white/10 hover:bg-white/20;
+  }
+}
+
+/* ============================================
+   Animation Keyframes
+   ============================================ */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.5);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer utilities {
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.5s ease-out forwards;
+  }
+}
+
+/* ============================================
+   Canvas Styles
+   ============================================ */
+canvas {
+  touch-action: none;
+  outline: none;
+}
+
+/* WebXR overlay styles */
+.xr-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.xr-overlay > * {
+  pointer-events: auto;
+}
+
+/* ============================================
+   Product Card Styles
+   ============================================ */
+.product-card {
+  @apply glass rounded-2xl p-4 transition-smooth;
+}
+
+.product-card:hover {
+  @apply glass-strong scale-[1.02];
+}
+
+.product-title {
+  @apply text-xl font-bold text-white mb-2;
+}
+
+.product-price {
+  @apply text-2xl font-bold text-green-400;
+}
+
+.product-description {
+  @apply text-sm text-white/70 line-clamp-2;
+}
+
+/* ============================================
+   Navigation Hint Styles
+   ============================================ */
+.nav-hint {
+  @apply glass-dark rounded-full px-4 py-2 text-sm text-white/70;
+  @apply flex items-center gap-2;
+}
+
+.nav-hint kbd {
+  @apply glass rounded px-2 py-1 text-xs font-mono;
+}

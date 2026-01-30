@@ -244,13 +244,24 @@ When working on this codebase, the AI assistant should:
 
 ### Phase 1: Foundation ✅
 - [x] Project scaffolding
-- [x] Procedural frame generation
-- [x] GLB model loading
-- [x] Zustand state management
-- [x] Keyboard/Gamepad navigation
+- [x] Procedural frame generation (`components/canvas/ProceduralFrame.tsx`)
+- [x] GLB model loading (`components/canvas/ModelViewer.tsx`)
+- [x] Zustand state management (`stores/MockStore.ts`)
+- [x] Keyboard/Gamepad navigation (`hooks/useGalleryNavigation.ts`)
+- [x] Audio controller hook (`hooks/useAudioController.ts`)
+- [x] Gallery floor with reflections (`components/canvas/GalleryFloor.tsx`)
+- [x] Dynamic product spotlight (`components/canvas/ProductSpotlight.tsx`)
+- [x] Product HUD overlay (`components/ui/ProductHUD.tsx`)
+- [x] Navigation hints UI (`components/ui/NavigationHint.tsx`)
+- [x] AR button component (`components/ui/ARButton.tsx`)
+- [x] Main gallery scene orchestrator (`components/canvas/ImmersiveGallery.tsx`)
+- [x] Next.js App Router setup (`app/layout.tsx`, `app/page.tsx`)
+- [x] Glassmorphism CSS utilities (`app/globals.css`)
+- [x] Configuration constants (`lib/constants.ts`)
 
 ### Phase 2: Commerce Features
-- [ ] Shopping cart persistence
+- [x] Shopping cart state management (basic implementation in `stores/MockStore.ts`)
+- [ ] Shopping cart persistence (localStorage/IndexedDB)
 - [ ] Product detail modal
 - [ ] Checkout flow UI
 - [ ] Wishlist functionality
@@ -262,7 +273,7 @@ When working on this codebase, the AI assistant should:
 - [ ] Spatial audio with Howler.js
 
 ### Phase 4: Polish
-- [ ] Loading states and transitions
+- [x] Loading states and transitions
 - [ ] Error boundaries
 - [ ] Analytics integration
 - [ ] PWA support
