@@ -10,6 +10,7 @@ import {
   PerformanceMonitor,
   Preload,
 } from '@react-three/drei';
+import * as THREE from 'three';
 import { useGalleryStore } from '@/stores/MockStore';
 import { isArtProduct, isTableProduct } from '@/lib/types';
 import { GALLERY_CONFIG } from '@/lib/constants';
@@ -119,16 +120,13 @@ export function ImmersiveGallery() {
       }}
       gl={{
         antialias: true,
-        toneMapping: 3, // ACESFilmicToneMapping
-        outputColorSpace: 'srgb',
+        toneMapping: THREE.ACESFilmicToneMapping,
+        outputColorSpace: THREE.SRGBColorSpace,
       }}
       style={{ background: '#0a0a0f' }}
     >
       <AdaptiveDpr pixelated />
-      <PerformanceMonitor
-        onIncline={() => console.log('Performance: High quality')}
-        onDecline={() => console.log('Performance: Reducing quality')}
-      />
+      <PerformanceMonitor />
 
       <Suspense fallback={<LoadingFallback />}>
         <Scene />

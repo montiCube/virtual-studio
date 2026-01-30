@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 interface ARButtonProps {
   onSessionStart?: () => void;
@@ -13,7 +13,7 @@ export function ARButton({ onSessionStart, onSessionEnd }: ARButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   // Check WebXR AR support
-  useState(() => {
+  useEffect(() => {
     if (typeof navigator !== 'undefined' && 'xr' in navigator) {
       (navigator as Navigator & { xr: XRSystem }).xr
         ?.isSessionSupported('immersive-ar')
@@ -26,7 +26,7 @@ export function ARButton({ onSessionStart, onSessionEnd }: ARButtonProps) {
     } else {
       setIsSupported(false);
     }
-  });
+  }, []);
 
   const handleClick = useCallback(async () => {
     if (!isSupported || isLoading) return;

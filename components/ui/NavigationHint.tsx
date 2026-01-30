@@ -3,7 +3,7 @@
 import { useGalleryNavigation } from '@/hooks/useGalleryNavigation';
 
 export function NavigationHint() {
-  const { canGoNext, canGoPrevious, currentIndex, totalProducts } = useGalleryNavigation();
+  const { canGoNext, canGoPrevious, currentIndex, totalProducts, navigate } = useGalleryNavigation();
 
   return (
     <div className="fixed bottom-8 right-8 flex flex-col items-end gap-4">
@@ -11,12 +11,7 @@ export function NavigationHint() {
       <div className="flex items-center gap-2">
         {/* Previous Button */}
         <button
-          onClick={() => {
-            if (canGoPrevious) {
-              const event = new KeyboardEvent('keydown', { key: 'ArrowLeft' });
-              window.dispatchEvent(event);
-            }
-          }}
+          onClick={() => canGoPrevious && navigate('previous')}
           disabled={!canGoPrevious}
           className={`
             p-3 rounded-full
@@ -40,12 +35,7 @@ export function NavigationHint() {
 
         {/* Next Button */}
         <button
-          onClick={() => {
-            if (canGoNext) {
-              const event = new KeyboardEvent('keydown', { key: 'ArrowRight' });
-              window.dispatchEvent(event);
-            }
-          }}
+          onClick={() => canGoNext && navigate('next')}
           disabled={!canGoNext}
           className={`
             p-3 rounded-full
