@@ -63,6 +63,9 @@ virtual-studio/
 ├── lib/
 │   ├── types.ts           # TypeScript interfaces
 │   └── constants.ts       # Configuration & asset URLs
+├── docs/                   # Feature Documentation
+│   └── features/
+│       └── virtual-room-designer.md  # Room Designer specification
 └── public/                # Static assets
 ```
 
@@ -263,6 +266,20 @@ When working on this codebase, the AI assistant should:
 - [ ] Error boundaries
 - [ ] Analytics integration
 - [ ] PWA support
+
+### Phase 5: Virtual Room Designer 🆕
+> **Feature Branch**: `feature/virtual-room-designer`  
+> **Full Specification**: [docs/features/virtual-room-designer.md](docs/features/virtual-room-designer.md)
+
+A standalone module enabling users to assemble virtual furniture and art into customizable 3D room environments to test interior design before purchasing.
+
+- [ ] Room template system (Living Room, Bedroom, Studio)
+- [ ] Item placement and manipulation (drag, rotate, scale)
+- [ ] Wall-mounted item support (art, shelves)
+- [ ] Design persistence and undo/redo history
+- [ ] Lighting and material customization
+- [ ] Shopping list generation with cost calculation
+- [ ] WebXR AR room overlay and VR walkthrough
 
 ---
 
