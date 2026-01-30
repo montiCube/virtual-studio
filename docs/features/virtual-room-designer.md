@@ -162,14 +162,14 @@ lib/roomDesignerPersistence.ts  // IndexedDB operations
 lib/designSerializer.ts         // State serialization
 lib/snapshotGenerator.ts        // Canvas capture
 
-// State extensions
+// State extensions (uses PlacedItem from API Contracts)
 interface RoomDesignDocument {
   id: string;
   name: string;
   version: number;
   templateId: string;
-  items: PlacedItemState[];
-  cameraPosition: Vector3;
+  items: PlacedItem[];       // See API Contracts section
+  cameraPosition: Vector3Tuple;
   createdAt: Date;
   updatedAt: Date;
   thumbnail?: string;
@@ -273,12 +273,10 @@ components/room-designer/xr/
 ```typescript
 // Strict TypeScript throughout
 // All item placements validated
-interface PlacedItemState {
-  productId: string;           // Must exist in catalog
-  position: Vector3Tuple;      // Validated bounds
-  rotation: QuaternionTuple;   // Normalized
-  scale: number;               // Within product constraints
-}
+// See PlacedItem interface in API Contracts section
+// position: Vector3Tuple - validated within room bounds
+// rotation: QuaternionTuple - auto-normalized
+// scale: number - constrained by product min/max scale
 ```
 
 #### 2. State Machine Validation
@@ -287,7 +285,7 @@ interface PlacedItemState {
 type PlacementState = 
   | { status: 'idle' }
   | { status: 'selecting'; productId: string }
-  | { status: 'placing'; productId: string; previewPosition: Vector3 }
+  | { status: 'placing'; productId: string; previewPosition: Vector3Tuple }
   | { status: 'placed'; placedItemId: string }
   | { status: 'error'; message: string };
 ```
@@ -317,16 +315,35 @@ on:
 
 jobs:
   validate:
+    runs-on: ubuntu-latest
     steps:
-      - lint: ESLint + TypeScript strict
-      - test: Vitest unit + component tests
-      - build: Next.js production build
-      - lighthouse: Performance audit
-      
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint (ESLint + TypeScript strict)
+        run: npm run lint
+      - name: Test (Vitest unit + component)
+        run: npm run test
+      - name: Build (Next.js production)
+        run: npm run build
+        
   visual-regression:
+    runs-on: ubuntu-latest
+    needs: validate
     steps:
-      - playwright: Interaction screenshots
-      - percy: Visual diff approval
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+      - name: Install dependencies
+        run: npm ci
+      - name: Playwright screenshots
+        run: npx playwright test
+      - name: Percy visual diff
+        run: npx percy exec -- npx playwright test
 ```
 
 #### 5. Feature Flags for Safe Rollout
@@ -425,15 +442,38 @@ export const ROOM_DESIGNER_FLAGS = {
 ### Room Design State Schema
 
 ```typescript
+// Type imports from Three.js ecosystem
+import type { Vector3Tuple, QuaternionTuple } from 'three';
+
+// Core placed item structure (used throughout the specification)
+interface PlacedItem {
+  id: string;
+  productId: string;           // Must exist in catalog
+  position: Vector3Tuple;      // [x, y, z] validated bounds
+  rotation: QuaternionTuple;   // [x, y, z, w] normalized
+  scale: number;               // Within product constraints
+}
+
+// Snapshot for undo/redo history
+interface RoomDesignSnapshot {
+  items: PlacedItem[];
+  room: RoomConfiguration;
+  timestamp: number;
+}
+
+// Room configuration
+interface RoomConfiguration {
+  templateId: string;
+  dimensions: { width: number; depth: number; height: number };
+  wallColor: string;
+  floorMaterial: string;
+  lighting: 'morning' | 'noon' | 'evening' | 'night';
+}
+
+// Main state interface
 interface RoomDesignState {
   // Room configuration
-  room: {
-    templateId: string;
-    dimensions: { width: number; depth: number; height: number };
-    wallColor: string;
-    floorMaterial: string;
-    lighting: 'morning' | 'noon' | 'evening' | 'night';
-  };
+  room: RoomConfiguration;
   
   // Placed items
   items: Map<string, PlacedItem>;
@@ -453,7 +493,7 @@ interface RoomDesignState {
   };
   
   // Actions
-  placeItem: (productId: string, position: Vector3) => string;
+  placeItem: (productId: string, position: Vector3Tuple) => string;
   removeItem: (itemId: string) => void;
   updateItem: (itemId: string, updates: Partial<PlacedItem>) => void;
   undo: () => void;
@@ -489,7 +529,7 @@ interface RoomDesignState {
 - [React Three Fiber Documentation](https://docs.pmnd.rs/react-three-fiber)
 - [Three.js TransformControls](https://threejs.org/docs/#examples/en/controls/TransformControls)
 - [IndexedDB API](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)
-- [WebXR Device API](https://immersive-web.github.io/webxr/)
+- [WebXR Device API - W3C Specification](https://www.w3.org/TR/webxr/)
 
 ---
 
