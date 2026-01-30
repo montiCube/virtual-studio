@@ -1,8 +1,8 @@
 'use client';
 
-import { useRef, useEffect, useMemo } from 'react';
+import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { useGLTF, Center } from '@react-three/drei';
+import { RoundedBox } from '@react-three/drei';
 import * as THREE from 'three';
 import type { TableProduct } from '@/lib/types';
 
@@ -12,55 +12,17 @@ interface ModelViewerProps {
   isActive?: boolean;
 }
 
+/**
+ * Procedural furniture placeholder when models can't be loaded.
+ * Creates a simple table representation using primitive geometry.
+ */
 export function ModelViewer({
   product,
   position = [0, 0, 0],
   isActive = false,
 }: ModelViewerProps) {
   const groupRef = useRef<THREE.Group>(null);
-  const { modelUri, scale } = product;
-
-  // Load GLB model
-  const { scene } = useGLTF(modelUri);
-
-  // Clone the scene to allow multiple instances
-  const clonedScene = useMemo(() => {
-    const clone = scene.clone();
-    
-    // Configure materials for optimal rendering
-    clone.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
-        
-        if (child.material) {
-          // Ensure proper color space
-          if (child.material instanceof THREE.MeshStandardMaterial) {
-            child.material.needsUpdate = true;
-          }
-        }
-      }
-    });
-    
-    return clone;
-  }, [scene]);
-
-  // Calculate bounding box for auto-scaling
-  useEffect(() => {
-    if (clonedScene) {
-      const box = new THREE.Box3().setFromObject(clonedScene);
-      const size = box.getSize(new THREE.Vector3());
-      const maxDim = Math.max(size.x, size.y, size.z);
-      
-      // Normalize to unit size then apply product scale
-      const normalizedScale = (1 / maxDim) * scale;
-      clonedScene.scale.setScalar(normalizedScale);
-      
-      // Center the model
-      const center = box.getCenter(new THREE.Vector3());
-      clonedScene.position.sub(center.multiplyScalar(normalizedScale));
-    }
-  }, [clonedScene, scale]);
+  const { scale } = product;
 
   // Subtle rotation animation for active product
   useFrame((state) => {
@@ -71,14 +33,44 @@ export function ModelViewer({
     }
   });
 
+  // Procedural table using simple geometry as fallback
+  // This ensures the app works even when external models can't be loaded
+  const tableColor = '#8B4513';
+  const legColor = '#5D3A1A';
+  const tableWidth = 1.2 * scale;
+  const tableDepth = 0.8 * scale;
+  const tableHeight = 0.05 * scale;
+  const tableTopY = 0.4 * scale;
+  const legSize = 0.08 * scale;
+  const legHeight = tableTopY;
+
   return (
     <group ref={groupRef} position={position}>
-      <Center>
-        <primitive object={clonedScene} />
-      </Center>
+      {/* Table Top */}
+      <RoundedBox
+        args={[tableWidth, tableHeight, tableDepth]}
+        radius={0.02}
+        position={[0, tableTopY, 0]}
+      >
+        <meshStandardMaterial color={tableColor} roughness={0.3} metalness={0.1} />
+      </RoundedBox>
+
+      {/* Table Legs */}
+      {[
+        [-(tableWidth / 2 - legSize), legHeight / 2, -(tableDepth / 2 - legSize)],
+        [(tableWidth / 2 - legSize), legHeight / 2, -(tableDepth / 2 - legSize)],
+        [-(tableWidth / 2 - legSize), legHeight / 2, (tableDepth / 2 - legSize)],
+        [(tableWidth / 2 - legSize), legHeight / 2, (tableDepth / 2 - legSize)],
+      ].map((legPos, index) => (
+        <RoundedBox
+          key={index}
+          args={[legSize, legHeight, legSize]}
+          radius={0.01}
+          position={legPos as [number, number, number]}
+        >
+          <meshStandardMaterial color={legColor} roughness={0.4} metalness={0.05} />
+        </RoundedBox>
+      ))}
     </group>
   );
 }
-
-// Preload model for faster initial render
-useGLTF.preload('https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/ToyCar/glTF-Binary/ToyCar.glb');
