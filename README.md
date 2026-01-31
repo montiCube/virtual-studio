@@ -81,6 +81,8 @@ virtual-studio/
 ├── hooks/
 │   ├── useGalleryNavigation.ts    # Keyboard + Gamepad input
 │   ├── useAudioController.ts      # Audio state management
+│   ├── useSpatialAudio.ts         # Howler.js spatial audio (3D positional)
+│   ├── useAnalytics.ts            # Analytics event tracking
 │   └── useDeviceCapabilities.ts   # Device detection hook
 ├── lib/
 │   ├── types.ts           # TypeScript interfaces
@@ -307,15 +309,15 @@ When working on this codebase, the AI assistant should:
   - [x] Camera capability detection for room scanning
   - [x] Known device profiles (Meta Quest, RayNeo, Rokid, iPhone, etc.)
   - [x] Feature recommendations based on device capabilities
-- [ ] WebXR AR placement with hit-test
-- [ ] Hit-test surface detection
-- [ ] Product scaling in AR
-- [ ] Spatial audio with Howler.js
+- [x] Spatial audio with Howler.js (`hooks/useSpatialAudio.ts`)
+- [ ] WebXR AR placement with hit-test (requires device testing)
+- [ ] Hit-test surface detection (requires device testing)
+- [ ] Product scaling in AR (requires device testing)
 
 ### Phase 4: Polish ✅
 - [x] Loading states and transitions
 - [x] Error boundaries (`components/ui/ErrorBoundary.tsx`, `components/ui/Canvas3DErrorBoundary.tsx`)
-- [ ] Analytics integration
+- [x] Analytics integration (`hooks/useAnalytics.ts`)
 - [x] PWA support (`public/manifest.json`, `public/sw.js`)
 
 ### Phase 5: Virtual Room Designer 🆕
@@ -414,6 +416,6 @@ MIT License - See [LICENSE](LICENSE) for details.
 ---
 
 <div align="center">
-  <strong>Virtual Studio v1.3.1</strong><br>
+  <strong>Virtual Studio v1.4.0</strong><br>
   <em>WebXR Commerce Platform</em>
 </div>

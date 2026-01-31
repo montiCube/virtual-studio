@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-01-31
+
+### Added
+
+#### Phase 3: Immersive Features
+
+**Spatial Audio (`hooks/useSpatialAudio.ts`):**
+- Howler.js integration for 3D positional audio
+- HRTF (Head-Related Transfer Function) support for realistic spatial sound
+- Web Audio API for low-latency audio processing
+- Listener position and orientation tracking for XR experiences
+- Sound positioning in 3D space
+- Crossfade between vibe tracks
+- Volume rolloff based on distance
+
+#### Phase 4: Polish
+
+**Analytics Integration (`hooks/useAnalytics.ts`):**
+- Event tracking for product views, cart actions, XR sessions
+- Session management with unique session IDs
+- Event batching and queue management
+- localStorage storage for debugging/development
+- Support for backend analytics endpoints
+- Tracking methods:
+  - `trackProductView` / `trackProductDetailView`
+  - `trackAddToCart` / `trackRemoveFromCart`
+  - `trackAddToWishlist` / `trackRemoveFromWishlist`
+  - `trackBeginCheckout` / `trackCompleteCheckout`
+  - `trackXRSessionStart` / `trackXRSessionEnd`
+  - `trackError`
+
+### Dependencies
+
+- Added `howler` ^2.2.4 for spatial audio
+- Added `@types/howler` for TypeScript support
+
 ## [1.3.1] - 2026-01-31
 
 ### Security
