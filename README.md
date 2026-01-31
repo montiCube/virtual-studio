@@ -58,19 +58,29 @@ virtual-studio/
 │   │   ├── ProceduralFrame.tsx    # Parametric art frames
 │   │   ├── ModelViewer.tsx        # GLB loader with auto-scale
 │   │   ├── GalleryFloor.tsx       # Reflective floor
-│   │   └── ProductSpotlight.tsx   # Dynamic lighting
+│   │   ├── ProductSpotlight.tsx   # Dynamic lighting
+│   │   ├── ARPreviewMode.tsx      # AR transparent overlay mode
+│   │   └── VRPreviewMode.tsx      # VR room environment mode
 │   └── ui/                # 2D Overlay Components
 │       ├── ProductHUD.tsx         # Product info card
 │       ├── NavigationHint.tsx     # Input hints
-│       └── ARButton.tsx           # WebXR session toggle
+│       ├── ARButton.tsx           # WebXR session toggle
+│       ├── XRPreviewButton.tsx    # AR/VR mode selector
+│       └── DeviceInfoDisplay.tsx  # Device capabilities display
 ├── stores/
-│   └── MockStore.ts       # Zustand store with mock data
+│   ├── MockStore.ts               # Zustand store with mock data
+│   ├── XRPreviewStore.ts          # XR preview state management
+│   └── DeviceCapabilitiesStore.ts # Device detection state
 ├── hooks/
 │   ├── useGalleryNavigation.ts    # Keyboard + Gamepad input
-│   └── useAudioController.ts      # Audio state management
+│   ├── useAudioController.ts      # Audio state management
+│   └── useDeviceCapabilities.ts   # Device detection hook
 ├── lib/
 │   ├── types.ts           # TypeScript interfaces
 │   └── constants.ts       # Configuration & asset URLs
+├── mcp/                    # MCP Server for AI Art Preparation
+│   ├── src/               # TypeScript source files
+│   └── README.md          # MCP documentation
 ├── docs/                   # Feature Documentation
 │   └── features/
 │       └── virtual-room-designer.md  # Room Designer specification
@@ -297,18 +307,25 @@ When working on this codebase, the AI assistant should:
 - [ ] PWA support
 
 ### Phase 5: Virtual Room Designer 🆕
-> **Feature Branch**: `feature/virtual-room-designer`  
 > **Full Specification**: [docs/features/virtual-room-designer.md](docs/features/virtual-room-designer.md)
 
 A standalone module enabling users to assemble virtual furniture and art into customizable 3D room environments to test interior design before purchasing.
 
+**XR Preview System (Core Feature - Completed):**
+- [x] AR Preview Mode - transparent passthrough for real-world overlay
+- [x] VR Preview Mode - virtual room environment with head tracking  
+- [x] Room template selection (Living Room, Bedroom, Studio, Custom)
+- [x] XR Preview button with mode selection
+- [x] Head tracking navigation support in VR
+
+**Room Designer (Planned):**
 - [ ] Room template system (Living Room, Bedroom, Studio)
 - [ ] Item placement and manipulation (drag, rotate, scale)
 - [ ] Wall-mounted item support (art, shelves)
 - [ ] Design persistence and undo/redo history
 - [ ] Lighting and material customization
 - [ ] Shopping list generation with cost calculation
-- [ ] WebXR AR room overlay and VR walkthrough
+- [ ] Advanced WebXR AR room overlay with hit-test
 
 ---
 
@@ -377,6 +394,6 @@ MIT License - See [LICENSE](LICENSE) for details.
 ---
 
 <div align="center">
-  <strong>Virtual Studio v1.0</strong><br>
-  <em>WebXR Commerce Prototype</em>
+  <strong>Virtual Studio v1.2.0</strong><br>
+  <em>WebXR Commerce Platform</em>
 </div>
