@@ -280,6 +280,11 @@ When working on this codebase, the AI assistant should:
   - [x] VR Preview Mode - virtual room environment with head tracking
   - [x] Room template selection (Living Room, Bedroom, Studio, Custom)
   - [x] XR Preview button with mode selection
+- [x] Device Detection System
+  - [x] Auto-detect device type (AR glasses, VR headsets, mobile, tablet, desktop)
+  - [x] Camera capability detection for room scanning
+  - [x] Known device profiles (Meta Quest, RayNeo, Rokid, iPhone, etc.)
+  - [x] Feature recommendations based on device capabilities
 - [ ] WebXR AR placement with hit-test
 - [ ] Hit-test surface detection
 - [ ] Product scaling in AR

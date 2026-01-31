@@ -24,6 +24,12 @@ const VRPreviewMode = dynamic(
   { ssr: false }
 );
 
+// Dynamically import device info display
+const DeviceInfoDisplay = dynamic(
+  () => import('../components/ui/DeviceInfoDisplay'),
+  { ssr: false }
+);
+
 // Loading screen component
 function LoadingScreen() {
   return (
@@ -53,6 +59,11 @@ export default function HomePage() {
       <Suspense fallback={<LoadingScreen />}>
         <ImmersiveGallery />
       </Suspense>
+      
+      {/* Device Info Display - Top Left Corner */}
+      <div className="absolute top-4 left-4 z-10 pointer-events-auto">
+        <DeviceInfoDisplay />
+      </div>
       
       {/* XR Preview Mode Overlay */}
       <XRPreviewOverlay />
