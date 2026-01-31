@@ -384,6 +384,14 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ---
 
+## 📚 Documentation
+
+- [MCP Server Documentation](mcp/README.md) - AI art preparation tools
+- [Virtual Room Designer Spec](docs/features/virtual-room-designer.md) - Feature specification
+- [README Maintenance Guide](docs/README-MAINTENANCE.md) - How to keep this README synchronized
+
+---
+
 ## 🙏 Acknowledgments
 
 - [React Three Fiber](https://github.com/pmndrs/react-three-fiber) - Declarative Three.js
