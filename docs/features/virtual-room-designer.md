@@ -216,28 +216,49 @@ components/room-designer/
 
 ---
 
-### Phase 5: WebXR Integration (Sprint 7-8)
+### Phase 5: WebXR Integration (Sprint 7-8) ✅ CORE FEATURE
 **Goal**: View designed room in AR/VR
 
+> **Status**: Foundation implemented as core platform feature.
+> See `components/canvas/ARPreviewMode.tsx` and `components/canvas/VRPreviewMode.tsx`
+
 #### Deliverables
-- [ ] AR room overlay on physical space
-- [ ] VR walkthrough of designed room
+- [x] AR Preview Mode - transparent passthrough for real-world item overlay
+- [x] VR Preview Mode - virtual room environment with head tracking
+- [x] Room template selection (Living Room, Bedroom, Studio, Custom)
+- [x] Head tracking navigation support in VR
+- [ ] AR room overlay on physical space (advanced hit-test)
 - [ ] Scale model preview (tabletop AR)
 - [ ] Collaborative VR viewing (stretch goal)
 
-#### Technical Tasks
+#### Technical Implementation (Completed)
 ```typescript
-// XR extensions
-components/room-designer/xr/
-├── ARRoomOverlay.tsx           // Physical space integration
-├── VRWalkthrough.tsx           // Immersive navigation
-├── ScaleModelPreview.tsx       // Miniature AR view
-└── CollaborativeSession.tsx    // Multi-user (stretch)
+// Core XR Preview System
+stores/XRPreviewStore.ts           // XR preview state management
+components/ui/XRPreviewButton.tsx  // Mode selection button
+components/canvas/ARPreviewMode.tsx // AR transparent overlay mode
+components/canvas/VRPreviewMode.tsx // VR room environment mode
+
+// Configuration
+lib/constants.ts                   // XR_PREVIEW_CONFIG, VR_ROOM_TEMPLATES
+lib/types.ts                       // XRPreviewMode, VRRoomTemplate, XRPreviewState
 ```
 
+#### XR Preview Features
+| Feature | AR Mode | VR Mode |
+|---------|---------|---------|
+| Background | Transparent (passthrough) | Virtual room |
+| Navigation | Touch/gesture | Head tracking |
+| Product Placement | Floating in space | Wall/floor mounted |
+| Room Templates | N/A | 4 options |
+| Controls | Pinch/rotate | Look around |
+
 #### Acceptance Criteria
-- [ ] AR session anchors room to floor plane
-- [ ] VR teleport navigation works
+- [x] AR session shows product on transparent background
+- [x] VR room renders with selectable templates
+- [x] Head tracking enables view navigation
+- [x] User can switch between AR and VR modes
+- [ ] AR session anchors room to floor plane (advanced)
 - [ ] Scale model fits on 3' surface
 - [ ] Session state syncs (if collaborative)
 
