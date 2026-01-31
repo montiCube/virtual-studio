@@ -312,6 +312,55 @@ A standalone module enabling users to assemble virtual furniture and art into cu
 
 ---
 
+## 🤖 MCP Integration (Model Context Protocol)
+
+Virtual Studio includes an MCP server for AI-assisted art preparation and gallery curation. This enables AI assistants to help you prepare stunning art pieces optimized for spatial display on Rokid Station 2.
+
+### Quick Setup
+
+```bash
+# Build the MCP server
+cd mcp
+npm install
+npm run build
+```
+
+### Configure with Claude Desktop
+
+Add to `~/.claude/claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "virtual-studio-art": {
+      "command": "node",
+      "args": ["/path/to/virtual-studio/mcp/dist/index.js"]
+    }
+  }
+}
+```
+
+### Available MCP Tools
+
+| Tool | Description |
+|------|-------------|
+| `prepare_art_piece` | Prepare art with optimal framing, lighting, and positioning |
+| `configure_frame` | Configure custom procedural frames (modern, classic, minimalist, ornate, floating) |
+| `create_gallery_layout` | Arrange multiple pieces in immersive 3D environments |
+| `optimize_for_spatial` | Device-specific optimization for Rokid Station 2 |
+| `get_display_config` | Export configuration ready for Virtual Studio integration |
+| `suggest_vibe_pairing` | AI-powered audio and lighting recommendations |
+
+### Example Prompt
+
+> "Help me prepare my artwork for display on Rokid Station 2. I have a serene landscape photograph that I'd like to display with a classic wooden frame in my virtual living room."
+
+The MCP will guide you through preparation, framing, optimization, and export for the spatial app.
+
+See [mcp/README.md](mcp/README.md) for full documentation.
+
+---
+
 ## 📄 License
 
 MIT License - See [LICENSE](LICENSE) for details.

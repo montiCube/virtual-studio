@@ -1,0 +1,41 @@
+{
+  "name": "@virtual-studio/art-display-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for preparing stunning art pieces for spatial display on Rokid Station 2",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "virtual-studio-art-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "art",
+    "spatial-computing",
+    "rokid",
+    "webxr",
+    "gallery"
+  ],
+  "author": "Virtual Studio Team",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.0",
+    "typescript": "^5.4.0",
+    "tsx": "^4.7.0",
+    "eslint": "^8.57.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
