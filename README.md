@@ -4,6 +4,14 @@
 
 ---
 
+## 🔗 Live Demo
+
+**[▶️ Launch Virtual Studio](https://monticube.github.io/virtual-studio/)**
+
+Experience the immersive 3D gallery directly in your browser.
+
+---
+
 ## 🎯 Project Vision
 
 **Virtual Studio** is a production-grade WebXR commerce application that enables users to experience furniture and art in immersive 3D environments—and place them in their physical spaces using Augmented Reality.
