@@ -1,6 +1,6 @@
 'use client';
 
-import { useGalleryStore, useCartStore } from '../../stores/MockStore';
+import { useGalleryStore, useCartStore, useModalStore } from '../../stores/MockStore';
 import { isArtProduct, isTableProduct } from '../../lib/types';
 import XRPreviewButton from './XRPreviewButton';
 
@@ -10,6 +10,7 @@ import XRPreviewButton from './XRPreviewButton';
 export function ProductHUD() {
   const { currentProduct, currentIndex, products } = useGalleryStore();
   const { addItem } = useCartStore();
+  const { openProductModal } = useModalStore();
 
   if (!currentProduct) return null;
 
@@ -22,6 +23,10 @@ export function ProductHUD() {
 
   const handleAddToCart = () => {
     addItem(currentProduct);
+  };
+
+  const handleViewDetails = () => {
+    openProductModal(currentProduct);
   };
 
   return (
@@ -53,6 +58,14 @@ export function ProductHUD() {
         <div className="flex items-center justify-between gap-2">
           <span className="product-price">{formatPrice(currentProduct.price)}</span>
           <div className="flex items-center gap-2">
+            {/* View Details Button */}
+            <button
+              onClick={handleViewDetails}
+              className="xr-button-secondary text-sm"
+              aria-label="View product details"
+            >
+              Details
+            </button>
             {/* XR Preview Button */}
             <XRPreviewButton product={currentProduct} />
             {/* Add to Cart Button */}

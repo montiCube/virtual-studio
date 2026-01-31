@@ -5,6 +5,152 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2026-01-31
+
+### Fixed
+
+**Spatial Audio (`hooks/useSpatialAudio.ts`):**
+- Fixed race condition in crossfade when rapidly switching vibes
+- Added abort mechanism to prevent audio operations on unmounted components
+- Queued crossfade requests now process sequentially
+
+**Analytics (`hooks/useAnalytics.ts`):**
+- Removed UserAgent tracking (privacy improvement - no fingerprinting)
+- Fixed stale closure issue in initialization effect
+- Made localStorage storage development-only by default
+- Referrer now only stores hostname (not full URL)
+- Added proper double-initialization prevention
+
+**Service Worker (`public/sw.js`):**
+- Changed URL matching from `.includes()` to strict prefix matching
+- Prevents false positives like `/checkoutpage` being blocked
+
+### Security
+
+- Analytics no longer collects browser fingerprinting data
+- Local analytics storage disabled by default in production
+
+## [1.4.0] - 2026-01-31
+
+### Added
+
+#### Phase 3: Immersive Features
+
+**Spatial Audio (`hooks/useSpatialAudio.ts`):**
+- Howler.js integration for 3D positional audio
+- HRTF (Head-Related Transfer Function) support for realistic spatial sound
+- Web Audio API for low-latency audio processing
+- Listener position and orientation tracking for XR experiences
+- Sound positioning in 3D space
+- Crossfade between vibe tracks
+- Volume rolloff based on distance
+
+#### Phase 4: Polish
+
+**Analytics Integration (`hooks/useAnalytics.ts`):**
+- Event tracking for product views, cart actions, XR sessions
+- Session management with unique session IDs
+- Event batching and queue management
+- localStorage storage for debugging/development
+- Support for backend analytics endpoints
+- Tracking methods:
+  - `trackProductView` / `trackProductDetailView`
+  - `trackAddToCart` / `trackRemoveFromCart`
+  - `trackAddToWishlist` / `trackRemoveFromWishlist`
+  - `trackBeginCheckout` / `trackCompleteCheckout`
+  - `trackXRSessionStart` / `trackXRSessionEnd`
+  - `trackError`
+
+### Dependencies
+
+- Added `howler` ^2.2.4 for spatial audio
+- Added `@types/howler` for TypeScript support
+
+## [1.3.1] - 2026-01-31
+
+### Security
+
+**Critical security hardening for commerce features:**
+
+- **Service Worker Security** (`public/sw.js`):
+  - Added URL pattern filtering to exclude sensitive routes from caching
+  - Checkout, payment, user, order, and auth endpoints are never cached
+  - Prevents accidental PII exposure through browser cache
+
+- **HTTP Security Headers** (`next.config.js`):
+  - Added `X-Frame-Options: DENY` to prevent clickjacking attacks
+  - Added `X-Content-Type-Options: nosniff` to prevent MIME sniffing
+  - Added `Referrer-Policy: strict-origin-when-cross-origin` for privacy
+  - Added `X-XSS-Protection: 1; mode=block` for legacy XSS protection
+  - Added `Permissions-Policy` to restrict sensitive browser features
+
+- **Input Validation** (`components/ui/CheckoutFlow.tsx`):
+  - Added input sanitization to strip potential XSS characters
+  - Added validation for names, email, postal codes
+  - Added `maxLength` attributes to prevent buffer overflow attacks
+  - Added proper `autoComplete` attributes for browser security
+  - Added visual validation error feedback
+
+### Changed
+
+- Checkout form now resets properly when reopened
+- Form fields now show red ring on validation errors
+
+## [1.3.0] - 2026-01-31
+
+### Added
+
+#### Phase 2: Commerce Features (Complete)
+
+**Shopping Cart Persistence:**
+- Cart state now persists to localStorage using Zustand persist middleware
+- Cart items survive browser refresh and page navigation
+
+**Product Detail Modal (`components/ui/ProductDetailModal.tsx`):**
+- Full-screen modal displaying detailed product information
+- Product specifications (dimensions, frame color, scale)
+- Add to Cart and Wishlist actions
+- Keyboard navigation (Escape to close)
+
+**Checkout Flow (`components/ui/CheckoutFlow.tsx`):**
+- Multi-step checkout process (Review → Shipping → Payment → Confirmation)
+- Progress indicator showing current step
+- Shipping information form
+- Mock payment form (demo mode)
+- Order confirmation with generated order ID
+
+**Wishlist Functionality:**
+- `useWishlistStore` - Zustand store with localStorage persistence
+- Add/remove products from wishlist
+- Wishlist count badge
+- `WishlistButton` component with visual state
+
+**Cart UI Components:**
+- `CartPanel` - Slide-out drawer showing cart items
+- `CartButton` - Header button showing cart item count
+- Quantity controls (+/-) for cart items
+- Clear cart functionality
+
+#### Phase 4: Polish (Partial)
+
+**Error Boundaries:**
+- `ErrorBoundary` - Generic error boundary with retry functionality
+- `Canvas3DErrorBoundary` - Specialized boundary for 3D/WebGL errors
+- User-friendly error messages with troubleshooting tips
+
+**PWA Support:**
+- `public/manifest.json` - Web app manifest with icons and metadata
+- `public/sw.js` - Service worker for offline caching
+- Apple Web App meta tags for iOS
+- Stale-while-revalidate caching strategy
+
+### Changed
+
+- Updated `ProductHUD` to include "Details" button for modal
+- Enhanced `app/page.tsx` with commerce UI components
+- Added slide-left animation for cart panel
+- Updated project structure documentation in README
+
 ## [1.2.0] - 2026-01-31
 
 ### Added

@@ -30,6 +30,32 @@ const DeviceInfoDisplay = dynamic(
   { ssr: false }
 );
 
+// Dynamically import commerce UI components
+const ProductDetailModal = dynamic(
+  () => import('../components/ui/ProductDetailModal'),
+  { ssr: false }
+);
+
+const CartPanel = dynamic(
+  () => import('../components/ui/CartPanel'),
+  { ssr: false }
+);
+
+const CartButton = dynamic(
+  () => import('../components/ui/CartButton'),
+  { ssr: false }
+);
+
+const WishlistButton = dynamic(
+  () => import('../components/ui/WishlistButton'),
+  { ssr: false }
+);
+
+const CheckoutFlow = dynamic(
+  () => import('../components/ui/CheckoutFlow'),
+  { ssr: false }
+);
+
 // Loading screen component
 function LoadingScreen() {
   return (
@@ -60,6 +86,12 @@ export default function HomePage() {
         <ImmersiveGallery />
       </Suspense>
       
+      {/* Header Actions - Top Right Corner */}
+      <div className="absolute top-4 right-4 z-10 pointer-events-auto flex items-center gap-2">
+        <WishlistButton />
+        <CartButton />
+      </div>
+      
       {/* Device Info Display - Top Left Corner */}
       <div className="absolute top-4 left-4 z-10 pointer-events-auto">
         <DeviceInfoDisplay />
@@ -67,6 +99,11 @@ export default function HomePage() {
       
       {/* XR Preview Mode Overlay */}
       <XRPreviewOverlay />
+
+      {/* Commerce Modals */}
+      <ProductDetailModal />
+      <CartPanel />
+      <CheckoutFlow />
     </main>
   );
 }
