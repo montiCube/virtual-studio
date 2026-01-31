@@ -275,7 +275,12 @@ When working on this codebase, the AI assistant should:
 - [ ] Wishlist functionality
 
 ### Phase 3: Immersive Features  
-- [ ] WebXR AR placement
+- [x] Mixed Reality Preview System (core feature)
+  - [x] AR Preview Mode - transparent passthrough for real-world overlay
+  - [x] VR Preview Mode - virtual room environment with head tracking
+  - [x] Room template selection (Living Room, Bedroom, Studio, Custom)
+  - [x] XR Preview button with mode selection
+- [ ] WebXR AR placement with hit-test
 - [ ] Hit-test surface detection
 - [ ] Product scaling in AR
 - [ ] Spatial audio with Howler.js

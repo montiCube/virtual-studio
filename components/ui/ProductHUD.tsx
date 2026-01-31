@@ -2,6 +2,7 @@
 
 import { useGalleryStore, useCartStore } from '../../stores/MockStore';
 import { isArtProduct, isTableProduct } from '../../lib/types';
+import XRPreviewButton from './XRPreviewButton';
 
 /**
  * Product information HUD overlay
@@ -48,15 +49,20 @@ export function ProductHUD() {
           <span className="capitalize">Vibe: {currentProduct.vibe}</span>
         </div>
 
-        {/* Price and action */}
-        <div className="flex items-center justify-between">
+        {/* Price and actions */}
+        <div className="flex items-center justify-between gap-2">
           <span className="product-price">{formatPrice(currentProduct.price)}</span>
-          <button
-            onClick={handleAddToCart}
-            className="xr-button-primary text-sm"
-          >
-            Add to Cart
-          </button>
+          <div className="flex items-center gap-2">
+            {/* XR Preview Button */}
+            <XRPreviewButton product={currentProduct} />
+            {/* Add to Cart Button */}
+            <button
+              onClick={handleAddToCart}
+              className="xr-button-primary text-sm"
+            >
+              Add to Cart
+            </button>
+          </div>
         </div>
       </div>
     </div>

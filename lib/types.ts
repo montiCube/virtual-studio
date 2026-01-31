@@ -67,3 +67,45 @@ export interface NavigationState {
   currentIndex: number;
   totalProducts: number;
 }
+
+// ============================================
+// XR Preview Types
+// ============================================
+
+/**
+ * XR Preview mode options
+ * - 'ar': Augmented Reality - transparent background allowing real-world overlay
+ * - 'vr': Virtual Reality - immersive room environment with head tracking
+ */
+export type XRPreviewMode = 'ar' | 'vr';
+
+/**
+ * VR Room template options
+ */
+export type VRRoomTemplate = 'living-room' | 'bedroom' | 'studio' | 'custom';
+
+/**
+ * XR Preview session state
+ */
+export interface XRPreviewState {
+  isActive: boolean;
+  mode: XRPreviewMode | null;
+  selectedProduct: Product | null;
+  vrRoomTemplate: VRRoomTemplate;
+  isHeadTrackingEnabled: boolean;
+}
+
+/**
+ * VR Room configuration
+ */
+export interface VRRoomConfig {
+  id: VRRoomTemplate;
+  name: string;
+  description: string;
+  dimensions: {
+    width: number;
+    depth: number;
+    height: number;
+  };
+  previewImage?: string;
+}

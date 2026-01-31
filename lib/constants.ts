@@ -123,3 +123,54 @@ export const PERFORMANCE_CONFIG = {
 } as const;
 
 export type PerformanceTier = keyof typeof PERFORMANCE_CONFIG;
+
+/**
+ * XR Preview configuration
+ */
+export const XR_PREVIEW_CONFIG = {
+  // AR Mode settings
+  ar: {
+    backgroundColor: 'transparent',
+    defaultScale: 1.0,
+    minScale: 0.1,
+    maxScale: 5.0,
+    rotationSpeed: 0.5,
+  },
+  // VR Mode settings
+  vr: {
+    defaultRoomTemplate: 'living-room' as const,
+    headTrackingEnabled: true,
+    movementSpeed: 2.0,
+    rotationSensitivity: 1.0,
+  },
+} as const;
+
+/**
+ * VR Room templates configuration
+ */
+export const VR_ROOM_TEMPLATES = {
+  'living-room': {
+    id: 'living-room' as const,
+    name: 'Living Room',
+    description: 'A cozy living room space (12\' x 14\')',
+    dimensions: { width: 3.66, depth: 4.27, height: 2.74 }, // meters
+  },
+  'bedroom': {
+    id: 'bedroom' as const,
+    name: 'Bedroom',
+    description: 'A comfortable bedroom (10\' x 12\')',
+    dimensions: { width: 3.05, depth: 3.66, height: 2.74 }, // meters
+  },
+  'studio': {
+    id: 'studio' as const,
+    name: 'Studio Apartment',
+    description: 'An open studio space (20\' x 25\')',
+    dimensions: { width: 6.10, depth: 7.62, height: 2.74 }, // meters
+  },
+  'custom': {
+    id: 'custom' as const,
+    name: 'Custom Room',
+    description: 'Upload your own room scan or customize dimensions',
+    dimensions: { width: 4.0, depth: 4.0, height: 2.74 }, // default meters
+  },
+} as const;
