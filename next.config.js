@@ -20,6 +20,29 @@ const nextConfig = {
     });
     return config;
   },
+  // Security headers
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          // Prevent clickjacking attacks
+          { key: 'X-Frame-Options', value: 'DENY' },
+          // Prevent MIME type sniffing
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          // Control referrer information
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          // XSS protection (legacy, but still useful)
+          { key: 'X-XSS-Protection', value: '1; mode=block' },
+          // Permissions policy - restrict sensitive features
+          { 
+            key: 'Permissions-Policy', 
+            value: 'camera=(self), microphone=(), geolocation=(), payment=()' 
+          },
+        ],
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

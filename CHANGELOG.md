@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2026-01-31
+
+### Security
+
+**Critical security hardening for commerce features:**
+
+- **Service Worker Security** (`public/sw.js`):
+  - Added URL pattern filtering to exclude sensitive routes from caching
+  - Checkout, payment, user, order, and auth endpoints are never cached
+  - Prevents accidental PII exposure through browser cache
+
+- **HTTP Security Headers** (`next.config.js`):
+  - Added `X-Frame-Options: DENY` to prevent clickjacking attacks
+  - Added `X-Content-Type-Options: nosniff` to prevent MIME sniffing
+  - Added `Referrer-Policy: strict-origin-when-cross-origin` for privacy
+  - Added `X-XSS-Protection: 1; mode=block` for legacy XSS protection
+  - Added `Permissions-Policy` to restrict sensitive browser features
+
+- **Input Validation** (`components/ui/CheckoutFlow.tsx`):
+  - Added input sanitization to strip potential XSS characters
+  - Added validation for names, email, postal codes
+  - Added `maxLength` attributes to prevent buffer overflow attacks
+  - Added proper `autoComplete` attributes for browser security
+  - Added visual validation error feedback
+
+### Changed
+
+- Checkout form now resets properly when reopened
+- Form fields now show red ring on validation errors
+
 ## [1.3.0] - 2026-01-31
 
 ### Added

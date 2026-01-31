@@ -4,6 +4,53 @@ import { useState, useEffect, useCallback } from 'react';
 import { useModalStore, useCartStore, useCheckoutStore } from '../../stores/MockStore';
 import type { CheckoutStep } from '../../stores/MockStore';
 
+// ============================================
+// Input Validation Utilities
+// ============================================
+
+/**
+ * Sanitize input by removing potential XSS vectors
+ * Defense-in-depth even though React auto-escapes JSX
+ */
+function sanitizeInput(input: string): string {
+  return input
+    .replace(/[<>]/g, '') // Remove angle brackets
+    .trim()
+    .slice(0, 200); // Limit length to prevent abuse
+}
+
+/**
+ * Validate email format
+ */
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email) && email.length <= 254;
+}
+
+/**
+ * Validate postal code (basic alphanumeric check)
+ */
+function isValidPostalCode(code: string): boolean {
+  return /^[a-zA-Z0-9\s-]{2,20}$/.test(code);
+}
+
+/**
+ * Validate name (letters, spaces, hyphens, apostrophes only)
+ */
+function isValidName(name: string): boolean {
+  return /^[a-zA-Z\s'-]{1,100}$/.test(name);
+}
+
+interface FormErrors {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  address?: string;
+  city?: string;
+  postalCode?: string;
+  country?: string;
+}
+
 /**
  * Checkout Flow UI - Multi-step checkout process
  */
@@ -32,6 +79,8 @@ export function CheckoutFlow() {
     country: '',
   });
 
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
+
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape' && !isProcessing) {
       closeCheckout();
@@ -49,6 +98,16 @@ export function CheckoutFlow() {
   useEffect(() => {
     if (isCheckoutOpen) {
       resetCheckout();
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        address: '',
+        city: '',
+        postalCode: '',
+        country: '',
+      });
+      setFormErrors({});
     }
   }, [isCheckoutOpen, resetCheckout]);
 
@@ -61,13 +120,50 @@ export function CheckoutFlow() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    // Sanitize input on change
+    const sanitizedValue = sanitizeInput(value);
+    setFormData(prev => ({ ...prev, [name]: sanitizedValue }));
+    // Clear error when user starts typing
+    if (formErrors[name as keyof FormErrors]) {
+      setFormErrors(prev => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const errors: FormErrors = {};
+
+    if (!isValidName(formData.firstName)) {
+      errors.firstName = 'Please enter a valid first name';
+    }
+    if (!isValidName(formData.lastName)) {
+      errors.lastName = 'Please enter a valid last name';
+    }
+    if (!isValidEmail(formData.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+    if (formData.address.length < 5 || formData.address.length > 200) {
+      errors.address = 'Please enter a valid address';
+    }
+    if (!isValidName(formData.city)) {
+      errors.city = 'Please enter a valid city name';
+    }
+    if (!isValidPostalCode(formData.postalCode)) {
+      errors.postalCode = 'Please enter a valid postal code';
+    }
+    if (!isValidName(formData.country)) {
+      errors.country = 'Please enter a valid country name';
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleShippingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setShippingInfo(formData);
-    setStep('payment');
+    if (validateForm()) {
+      setShippingInfo(formData);
+      setStep('payment');
+    }
   };
 
   const handlePaymentSubmit = async (e: React.FormEvent) => {
@@ -141,72 +237,107 @@ export function CheckoutFlow() {
           <form onSubmit={handleShippingSubmit} className="space-y-4">
             <h3 className="text-lg font-semibold text-white">Shipping Information</h3>
             <div className="grid grid-cols-2 gap-3">
-              <input
-                type="text"
-                name="firstName"
-                placeholder="First Name"
-                value={formData.firstName}
-                onChange={handleInputChange}
-                required
-                className="glass rounded-lg px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-              />
-              <input
-                type="text"
-                name="lastName"
-                placeholder="Last Name"
-                value={formData.lastName}
-                onChange={handleInputChange}
-                required
-                className="glass rounded-lg px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-              />
+              <div>
+                <input
+                  type="text"
+                  name="firstName"
+                  placeholder="First Name"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  required
+                  maxLength={100}
+                  autoComplete="given-name"
+                  className={`w-full glass rounded-lg px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 ${formErrors.firstName ? 'ring-2 ring-red-500/50' : 'focus:ring-blue-500/50'}`}
+                />
+                {formErrors.firstName && <p className="text-red-400 text-xs mt-1">{formErrors.firstName}</p>}
+              </div>
+              <div>
+                <input
+                  type="text"
+                  name="lastName"
+                  placeholder="Last Name"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  required
+                  maxLength={100}
+                  autoComplete="family-name"
+                  className={`w-full glass rounded-lg px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 ${formErrors.lastName ? 'ring-2 ring-red-500/50' : 'focus:ring-blue-500/50'}`}
+                />
+                {formErrors.lastName && <p className="text-red-400 text-xs mt-1">{formErrors.lastName}</p>}
+              </div>
             </div>
-            <input
-              type="email"
-              name="email"
-              placeholder="Email Address"
-              value={formData.email}
-              onChange={handleInputChange}
-              required
-              className="w-full glass rounded-lg px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-            />
-            <input
-              type="text"
-              name="address"
-              placeholder="Street Address"
-              value={formData.address}
-              onChange={handleInputChange}
-              required
-              className="w-full glass rounded-lg px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-            />
+            <div>
+              <input
+                type="email"
+                name="email"
+                placeholder="Email Address"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+                maxLength={254}
+                autoComplete="email"
+                className={`w-full glass rounded-lg px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 ${formErrors.email ? 'ring-2 ring-red-500/50' : 'focus:ring-blue-500/50'}`}
+              />
+              {formErrors.email && <p className="text-red-400 text-xs mt-1">{formErrors.email}</p>}
+            </div>
+            <div>
+              <input
+                type="text"
+                name="address"
+                placeholder="Street Address"
+                value={formData.address}
+                onChange={handleInputChange}
+                required
+                maxLength={200}
+                autoComplete="street-address"
+                className={`w-full glass rounded-lg px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 ${formErrors.address ? 'ring-2 ring-red-500/50' : 'focus:ring-blue-500/50'}`}
+              />
+              {formErrors.address && <p className="text-red-400 text-xs mt-1">{formErrors.address}</p>}
+            </div>
             <div className="grid grid-cols-2 gap-3">
-              <input
-                type="text"
-                name="city"
-                placeholder="City"
-                value={formData.city}
-                onChange={handleInputChange}
-                required
-                className="glass rounded-lg px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-              />
-              <input
-                type="text"
-                name="postalCode"
-                placeholder="Postal Code"
-                value={formData.postalCode}
-                onChange={handleInputChange}
-                required
-                className="glass rounded-lg px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-              />
+              <div>
+                <input
+                  type="text"
+                  name="city"
+                  placeholder="City"
+                  value={formData.city}
+                  onChange={handleInputChange}
+                  required
+                  maxLength={100}
+                  autoComplete="address-level2"
+                  className={`w-full glass rounded-lg px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 ${formErrors.city ? 'ring-2 ring-red-500/50' : 'focus:ring-blue-500/50'}`}
+                />
+                {formErrors.city && <p className="text-red-400 text-xs mt-1">{formErrors.city}</p>}
+              </div>
+              <div>
+                <input
+                  type="text"
+                  name="postalCode"
+                  placeholder="Postal Code"
+                  value={formData.postalCode}
+                  onChange={handleInputChange}
+                  required
+                  maxLength={20}
+                  autoComplete="postal-code"
+                  className={`w-full glass rounded-lg px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 ${formErrors.postalCode ? 'ring-2 ring-red-500/50' : 'focus:ring-blue-500/50'}`}
+                />
+                {formErrors.postalCode && <p className="text-red-400 text-xs mt-1">{formErrors.postalCode}</p>}
+              </div>
             </div>
-            <input
-              type="text"
-              name="country"
-              placeholder="Country"
-              value={formData.country}
-              onChange={handleInputChange}
-              required
-              className="w-full glass rounded-lg px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-            />
+            <div>
+              <input
+                type="text"
+                name="country"
+                placeholder="Country"
+                value={formData.country}
+                onChange={handleInputChange}
+                required
+                maxLength={100}
+                autoComplete="country-name"
+                className={`w-full glass rounded-lg px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 ${formErrors.country ? 'ring-2 ring-red-500/50' : 'focus:ring-blue-500/50'}`}
+              />
+              {formErrors.country && <p className="text-red-400 text-xs mt-1">{formErrors.country}</p>}
+            </div>
             <div className="flex gap-3">
               <button
                 type="button"

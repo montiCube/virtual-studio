@@ -8,6 +8,25 @@ const STATIC_ASSETS = [
   '/manifest.json',
 ];
 
+// URL patterns that should NEVER be cached (sensitive data)
+const SENSITIVE_PATTERNS = [
+  '/api/checkout',
+  '/api/payment',
+  '/api/user',
+  '/api/order',
+  '/api/auth',
+  '/checkout',
+  '/account',
+];
+
+/**
+ * Check if a URL should be excluded from caching for security reasons
+ */
+function isSensitiveUrl(url) {
+  const pathname = url.pathname.toLowerCase();
+  return SENSITIVE_PATTERNS.some(pattern => pathname.includes(pattern));
+}
+
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -39,11 +58,16 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET requests
+  // Skip non-GET requests (POST, PUT, DELETE contain sensitive data)
   if (request.method !== 'GET') return;
 
   // Skip WebSocket requests
   if (url.protocol === 'ws:' || url.protocol === 'wss:') return;
+
+  // SECURITY: Never cache sensitive URLs (checkout, payment, user data)
+  if (isSensitiveUrl(url)) {
+    return; // Let the browser handle these requests normally
+  }
 
   // Skip cross-origin requests (external APIs, CDNs)
   if (url.origin !== self.location.origin) {

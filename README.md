@@ -414,6 +414,6 @@ MIT License - See [LICENSE](LICENSE) for details.
 ---
 
 <div align="center">
-  <strong>Virtual Studio v1.3.0</strong><br>
+  <strong>Virtual Studio v1.3.1</strong><br>
   <em>WebXR Commerce Platform</em>
 </div>
