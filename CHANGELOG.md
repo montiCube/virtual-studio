@@ -5,6 +5,61 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-01-31
+
+### Added
+
+#### Phase 2: Commerce Features (Complete)
+
+**Shopping Cart Persistence:**
+- Cart state now persists to localStorage using Zustand persist middleware
+- Cart items survive browser refresh and page navigation
+
+**Product Detail Modal (`components/ui/ProductDetailModal.tsx`):**
+- Full-screen modal displaying detailed product information
+- Product specifications (dimensions, frame color, scale)
+- Add to Cart and Wishlist actions
+- Keyboard navigation (Escape to close)
+
+**Checkout Flow (`components/ui/CheckoutFlow.tsx`):**
+- Multi-step checkout process (Review → Shipping → Payment → Confirmation)
+- Progress indicator showing current step
+- Shipping information form
+- Mock payment form (demo mode)
+- Order confirmation with generated order ID
+
+**Wishlist Functionality:**
+- `useWishlistStore` - Zustand store with localStorage persistence
+- Add/remove products from wishlist
+- Wishlist count badge
+- `WishlistButton` component with visual state
+
+**Cart UI Components:**
+- `CartPanel` - Slide-out drawer showing cart items
+- `CartButton` - Header button showing cart item count
+- Quantity controls (+/-) for cart items
+- Clear cart functionality
+
+#### Phase 4: Polish (Partial)
+
+**Error Boundaries:**
+- `ErrorBoundary` - Generic error boundary with retry functionality
+- `Canvas3DErrorBoundary` - Specialized boundary for 3D/WebGL errors
+- User-friendly error messages with troubleshooting tips
+
+**PWA Support:**
+- `public/manifest.json` - Web app manifest with icons and metadata
+- `public/sw.js` - Service worker for offline caching
+- Apple Web App meta tags for iOS
+- Stale-while-revalidate caching strategy
+
+### Changed
+
+- Updated `ProductHUD` to include "Details" button for modal
+- Enhanced `app/page.tsx` with commerce UI components
+- Added slide-left animation for cart panel
+- Updated project structure documentation in README
+
 ## [1.2.0] - 2026-01-31
 
 ### Added

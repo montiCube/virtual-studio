@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { MOCK_ASSETS, DEFAULT_AUDIO_TRACKS } from '../lib/constants';
 import type { Product, ArtProduct, TableProduct, GalleryState, AudioTrack, VibeCategory } from '../lib/types';
@@ -122,7 +123,7 @@ export const useGalleryStore = create<GalleryState>()(
 );
 
 // ============================================
-// Cart Store
+// Cart Store (with localStorage persistence)
 // ============================================
 
 interface CartItem {
@@ -141,53 +142,59 @@ interface CartState {
 }
 
 export const useCartStore = create<CartState>()(
-  immer((set, get) => ({
-    items: [],
+  persist(
+    immer((set, get) => ({
+      items: [],
 
-    addItem: (product: Product) => {
-      set((state) => {
-        const existingItem = state.items.find(item => item.product.id === product.id);
-        if (existingItem) {
-          existingItem.quantity += 1;
-        } else {
-          state.items.push({ product, quantity: 1 });
-        }
-      });
-    },
-
-    removeItem: (productId: string) => {
-      set((state) => {
-        state.items = state.items.filter(item => item.product.id !== productId);
-      });
-    },
-
-    updateQuantity: (productId: string, quantity: number) => {
-      set((state) => {
-        const item = state.items.find(item => item.product.id === productId);
-        if (item) {
-          if (quantity <= 0) {
-            state.items = state.items.filter(i => i.product.id !== productId);
+      addItem: (product: Product) => {
+        set((state) => {
+          const existingItem = state.items.find(item => item.product.id === product.id);
+          if (existingItem) {
+            existingItem.quantity += 1;
           } else {
-            item.quantity = quantity;
+            state.items.push({ product, quantity: 1 });
           }
-        }
-      });
-    },
+        });
+      },
 
-    clearCart: () => {
-      set((state) => {
-        state.items = [];
-      });
-    },
+      removeItem: (productId: string) => {
+        set((state) => {
+          state.items = state.items.filter(item => item.product.id !== productId);
+        });
+      },
 
-    getTotalPrice: () => {
-      return get().items.reduce((total, item) => total + item.product.price * item.quantity, 0);
-    },
+      updateQuantity: (productId: string, quantity: number) => {
+        set((state) => {
+          const item = state.items.find(item => item.product.id === productId);
+          if (item) {
+            if (quantity <= 0) {
+              state.items = state.items.filter(i => i.product.id !== productId);
+            } else {
+              item.quantity = quantity;
+            }
+          }
+        });
+      },
 
-    getTotalItems: () => {
-      return get().items.reduce((total, item) => total + item.quantity, 0);
-    },
-  }))
+      clearCart: () => {
+        set((state) => {
+          state.items = [];
+        });
+      },
+
+      getTotalPrice: () => {
+        return get().items.reduce((total, item) => total + item.product.price * item.quantity, 0);
+      },
+
+      getTotalItems: () => {
+        return get().items.reduce((total, item) => total + item.quantity, 0);
+      },
+    })),
+    {
+      name: 'virtual-studio-cart',
+      version: 1,
+    }
+  )
 );
 
 // ============================================
@@ -233,6 +240,190 @@ export const useAudioStore = create<AudioState>()(
     toggleMute: () => {
       set((state) => {
         state.isMuted = !state.isMuted;
+      });
+    },
+  }))
+);
+
+// ============================================
+// Wishlist Store (with localStorage persistence)
+// ============================================
+
+interface WishlistState {
+  items: Product[];
+  addToWishlist: (product: Product) => void;
+  removeFromWishlist: (productId: string) => void;
+  isInWishlist: (productId: string) => boolean;
+  clearWishlist: () => void;
+}
+
+export const useWishlistStore = create<WishlistState>()(
+  persist(
+    immer((set, get) => ({
+      items: [],
+
+      addToWishlist: (product: Product) => {
+        set((state) => {
+          const exists = state.items.some(item => item.id === product.id);
+          if (!exists) {
+            state.items.push(product);
+          }
+        });
+      },
+
+      removeFromWishlist: (productId: string) => {
+        set((state) => {
+          state.items = state.items.filter(item => item.id !== productId);
+        });
+      },
+
+      isInWishlist: (productId: string) => {
+        return get().items.some(item => item.id === productId);
+      },
+
+      clearWishlist: () => {
+        set((state) => {
+          state.items = [];
+        });
+      },
+    })),
+    {
+      name: 'virtual-studio-wishlist',
+      version: 1,
+    }
+  )
+);
+
+// ============================================
+// Checkout Store
+// ============================================
+
+export type CheckoutStep = 'cart' | 'shipping' | 'payment' | 'confirmation';
+
+interface ShippingInfo {
+  firstName: string;
+  lastName: string;
+  email: string;
+  address: string;
+  city: string;
+  postalCode: string;
+  country: string;
+}
+
+interface CheckoutState {
+  currentStep: CheckoutStep;
+  shippingInfo: ShippingInfo | null;
+  isProcessing: boolean;
+  orderId: string | null;
+  setStep: (step: CheckoutStep) => void;
+  setShippingInfo: (info: ShippingInfo) => void;
+  setProcessing: (value: boolean) => void;
+  setOrderId: (id: string | null) => void;
+  resetCheckout: () => void;
+}
+
+export const useCheckoutStore = create<CheckoutState>()(
+  immer((set) => ({
+    currentStep: 'cart',
+    shippingInfo: null,
+    isProcessing: false,
+    orderId: null,
+
+    setStep: (step: CheckoutStep) => {
+      set((state) => {
+        state.currentStep = step;
+      });
+    },
+
+    setShippingInfo: (info: ShippingInfo) => {
+      set((state) => {
+        state.shippingInfo = info;
+      });
+    },
+
+    setProcessing: (value: boolean) => {
+      set((state) => {
+        state.isProcessing = value;
+      });
+    },
+
+    setOrderId: (id: string | null) => {
+      set((state) => {
+        state.orderId = id;
+      });
+    },
+
+    resetCheckout: () => {
+      set((state) => {
+        state.currentStep = 'cart';
+        state.shippingInfo = null;
+        state.isProcessing = false;
+        state.orderId = null;
+      });
+    },
+  }))
+);
+
+// ============================================
+// Modal Store (for product detail modal)
+// ============================================
+
+interface ModalState {
+  isProductModalOpen: boolean;
+  isCartOpen: boolean;
+  isCheckoutOpen: boolean;
+  selectedProduct: Product | null;
+  openProductModal: (product: Product) => void;
+  closeProductModal: () => void;
+  openCart: () => void;
+  closeCart: () => void;
+  openCheckout: () => void;
+  closeCheckout: () => void;
+}
+
+export const useModalStore = create<ModalState>()(
+  immer((set) => ({
+    isProductModalOpen: false,
+    isCartOpen: false,
+    isCheckoutOpen: false,
+    selectedProduct: null,
+
+    openProductModal: (product: Product) => {
+      set((state) => {
+        state.isProductModalOpen = true;
+        state.selectedProduct = product;
+      });
+    },
+
+    closeProductModal: () => {
+      set((state) => {
+        state.isProductModalOpen = false;
+        state.selectedProduct = null;
+      });
+    },
+
+    openCart: () => {
+      set((state) => {
+        state.isCartOpen = true;
+      });
+    },
+
+    closeCart: () => {
+      set((state) => {
+        state.isCartOpen = false;
+      });
+    },
+
+    openCheckout: () => {
+      set((state) => {
+        state.isCheckoutOpen = true;
+        state.isCartOpen = false;
+      });
+    },
+
+    closeCheckout: () => {
+      set((state) => {
+        state.isCheckoutOpen = false;
       });
     },
   }))

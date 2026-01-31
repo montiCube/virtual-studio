@@ -49,7 +49,7 @@ Experience the immersive 3D gallery directly in your browser.
 ```
 virtual-studio/
 ├── app/                    # Next.js App Router
-│   ├── layout.tsx         # Root layout with metadata
+│   ├── layout.tsx         # Root layout with metadata + PWA
 │   ├── page.tsx           # Main entry point
 │   └── globals.css        # Tailwind + glassmorphism utilities
 ├── components/
@@ -63,12 +63,19 @@ virtual-studio/
 │   │   └── VRPreviewMode.tsx      # VR room environment mode
 │   └── ui/                # 2D Overlay Components
 │       ├── ProductHUD.tsx         # Product info card
+│       ├── ProductDetailModal.tsx # Product detail modal
+│       ├── CartPanel.tsx          # Shopping cart drawer
+│       ├── CartButton.tsx         # Cart button with count
+│       ├── WishlistButton.tsx     # Wishlist toggle button
+│       ├── CheckoutFlow.tsx       # Multi-step checkout
+│       ├── ErrorBoundary.tsx      # Generic error boundary
+│       ├── Canvas3DErrorBoundary.tsx # 3D-specific error boundary
 │       ├── NavigationHint.tsx     # Input hints
 │       ├── ARButton.tsx           # WebXR session toggle
 │       ├── XRPreviewButton.tsx    # AR/VR mode selector
 │       └── DeviceInfoDisplay.tsx  # Device capabilities display
 ├── stores/
-│   ├── MockStore.ts               # Zustand store with mock data
+│   ├── MockStore.ts               # Zustand stores (gallery, cart, wishlist, checkout, modals)
 │   ├── XRPreviewStore.ts          # XR preview state management
 │   └── DeviceCapabilitiesStore.ts # Device detection state
 ├── hooks/
@@ -85,6 +92,8 @@ virtual-studio/
 │   └── features/
 │       └── virtual-room-designer.md  # Room Designer specification
 └── public/                # Static assets
+    ├── manifest.json      # PWA manifest
+    └── sw.js              # Service worker for offline support
 ```
 
 ---
@@ -277,12 +286,15 @@ When working on this codebase, the AI assistant should:
 - [x] Glassmorphism CSS utilities (`app/globals.css`)
 - [x] Configuration constants (`lib/constants.ts`)
 
-### Phase 2: Commerce Features
-- [x] Shopping cart state management (basic implementation in `stores/MockStore.ts`)
-- [ ] Shopping cart persistence (localStorage/IndexedDB)
-- [ ] Product detail modal
-- [ ] Checkout flow UI
-- [ ] Wishlist functionality
+### Phase 2: Commerce Features ✅
+- [x] Shopping cart state management (`stores/MockStore.ts`)
+- [x] Shopping cart persistence with localStorage (`stores/MockStore.ts` using Zustand persist)
+- [x] Product detail modal (`components/ui/ProductDetailModal.tsx`)
+- [x] Checkout flow UI (`components/ui/CheckoutFlow.tsx`)
+- [x] Wishlist functionality (`stores/MockStore.ts` - `useWishlistStore`)
+- [x] Cart panel with slide-out drawer (`components/ui/CartPanel.tsx`)
+- [x] Cart button with item count (`components/ui/CartButton.tsx`)
+- [x] Wishlist button with count (`components/ui/WishlistButton.tsx`)
 
 ### Phase 3: Immersive Features  
 - [x] Mixed Reality Preview System (core feature)
@@ -300,11 +312,11 @@ When working on this codebase, the AI assistant should:
 - [ ] Product scaling in AR
 - [ ] Spatial audio with Howler.js
 
-### Phase 4: Polish
+### Phase 4: Polish ✅
 - [x] Loading states and transitions
-- [ ] Error boundaries
+- [x] Error boundaries (`components/ui/ErrorBoundary.tsx`, `components/ui/Canvas3DErrorBoundary.tsx`)
 - [ ] Analytics integration
-- [ ] PWA support
+- [x] PWA support (`public/manifest.json`, `public/sw.js`)
 
 ### Phase 5: Virtual Room Designer 🆕
 > **Full Specification**: [docs/features/virtual-room-designer.md](docs/features/virtual-room-designer.md)
@@ -402,6 +414,6 @@ MIT License - See [LICENSE](LICENSE) for details.
 ---
 
 <div align="center">
-  <strong>Virtual Studio v1.2.0</strong><br>
+  <strong>Virtual Studio v1.3.0</strong><br>
   <em>WebXR Commerce Platform</em>
 </div>
