@@ -50,6 +50,11 @@ export function useSpatialAudio(spatialConfig: Partial<SpatialAudioConfig> = {})
   const currentSoundRef = useRef<Howl | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [isSpatialSupported, setIsSpatialSupported] = useState(false);
+  
+  // Abort controller for crossfade operations
+  const abortRef = useRef(false);
+  const crossfadeInProgressRef = useRef(false);
+  const pendingVibeRef = useRef<VibeCategory | null>(null);
 
   const { currentVibe, isPlaying, volume, isMuted, setVibe } = useAudioStore();
   const { currentProduct } = useGalleryStore();
@@ -93,8 +98,9 @@ export function useSpatialAudio(spatialConfig: Partial<SpatialAudioConfig> = {})
 
     setIsInitialized(true);
 
-    // Cleanup on unmount
+    // Cleanup on unmount - abort any in-progress crossfades
     return () => {
+      abortRef.current = true;
       soundsRef.current.forEach((sound) => {
         sound.unload();
       });
@@ -168,14 +174,25 @@ export function useSpatialAudio(spatialConfig: Partial<SpatialAudioConfig> = {})
 
   /**
    * Crossfade to a new vibe track
+   * Handles race conditions by queuing rapid requests
    */
   const crossfadeTo = useCallback(async (newVibe: VibeCategory) => {
     if (!isInitialized) return;
 
+    // If a crossfade is in progress, queue this request
+    if (crossfadeInProgressRef.current) {
+      pendingVibeRef.current = newVibe;
+      return;
+    }
+
+    crossfadeInProgressRef.current = true;
     const oldSound = currentSoundRef.current;
     const newSound = soundsRef.current.get(newVibe);
     
-    if (!newSound) return;
+    if (!newSound) {
+      crossfadeInProgressRef.current = false;
+      return;
+    }
 
     // Start new sound at 0 volume
     newSound.volume(0);
@@ -186,6 +203,12 @@ export function useSpatialAudio(spatialConfig: Partial<SpatialAudioConfig> = {})
     const stepDuration = AUDIO_CONFIG.fadeInDuration / fadeSteps;
 
     for (let i = 0; i <= fadeSteps; i++) {
+      // Check for abort (component unmount)
+      if (abortRef.current) {
+        crossfadeInProgressRef.current = false;
+        return;
+      }
+      
       const progress = i / fadeSteps;
       
       if (oldSound && oldSound !== newSound) {
@@ -202,6 +225,14 @@ export function useSpatialAudio(spatialConfig: Partial<SpatialAudioConfig> = {})
     }
 
     currentSoundRef.current = newSound;
+    crossfadeInProgressRef.current = false;
+
+    // Process any pending vibe request
+    if (pendingVibeRef.current && pendingVibeRef.current !== newVibe) {
+      const pending = pendingVibeRef.current;
+      pendingVibeRef.current = null;
+      crossfadeTo(pending);
+    }
   }, [isInitialized, volume, isMuted]);
 
   // Sync vibe with current product

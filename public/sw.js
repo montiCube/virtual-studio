@@ -9,6 +9,7 @@ const STATIC_ASSETS = [
 ];
 
 // URL patterns that should NEVER be cached (sensitive data)
+// Uses exact path matching or prefix matching with trailing slash
 const SENSITIVE_PATTERNS = [
   '/api/checkout',
   '/api/payment',
@@ -21,10 +22,15 @@ const SENSITIVE_PATTERNS = [
 
 /**
  * Check if a URL should be excluded from caching for security reasons
+ * Uses strict path matching to avoid false positives
  */
 function isSensitiveUrl(url) {
   const pathname = url.pathname.toLowerCase();
-  return SENSITIVE_PATTERNS.some(pattern => pathname.includes(pattern));
+  return SENSITIVE_PATTERNS.some(pattern => 
+    pathname === pattern || 
+    pathname.startsWith(pattern + '/') ||
+    pathname.startsWith(pattern + '?')
+  );
 }
 
 // Install event - cache static assets

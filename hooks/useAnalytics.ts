@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Product } from '../lib/types';
 
 /**
@@ -47,6 +47,8 @@ interface AnalyticsConfig {
   batchSize: number;
   /** Batch flush interval in ms */
   flushInterval: number;
+  /** Store events in localStorage (for debugging only - disable in production) */
+  storeLocally: boolean;
 }
 
 const DEFAULT_CONFIG: AnalyticsConfig = {
@@ -54,10 +56,11 @@ const DEFAULT_CONFIG: AnalyticsConfig = {
   debug: process.env.NODE_ENV === 'development',
   batchSize: 10,
   flushInterval: 5000,
+  storeLocally: process.env.NODE_ENV === 'development', // Only store locally in development
 };
 
 /**
- * Generate a unique session ID
+ * Generate a unique session ID (privacy-friendly, not fingerprinting)
  */
 function generateSessionId(): string {
   return `vs-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
@@ -67,50 +70,19 @@ function generateSessionId(): string {
  * Custom hook for analytics tracking
  * Provides event tracking for product views, cart actions, XR sessions, etc.
  * 
- * Currently logs events to console (development) and stores in localStorage.
- * Can be extended to send to analytics services (GA, Mixpanel, etc.)
+ * Privacy-first design:
+ * - No PII collection (no IP, no user agent fingerprinting)
+ * - Session ID only persists for the browser session
+ * - Local storage only used in development mode
+ * - Can be extended to send to analytics services (GA, Mixpanel, etc.)
  */
 export function useAnalytics(config: Partial<AnalyticsConfig> = {}) {
   const mergedConfig = { ...DEFAULT_CONFIG, ...config };
   const sessionIdRef = useRef<string>('');
   const eventQueueRef = useRef<AnalyticsEvent[]>([]);
   const flushIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  // Initialize session ID
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    
-    // Try to restore session from sessionStorage, or create new
-    let sessionId = sessionStorage.getItem('vs_session_id');
-    if (!sessionId) {
-      sessionId = generateSessionId();
-      sessionStorage.setItem('vs_session_id', sessionId);
-    }
-    sessionIdRef.current = sessionId;
-
-    // Track page view on mount
-    trackEvent('page_view', {
-      path: window.location.pathname,
-      referrer: document.referrer,
-      userAgent: navigator.userAgent,
-    });
-
-    // Set up flush interval
-    if (mergedConfig.flushInterval > 0) {
-      flushIntervalRef.current = setInterval(() => {
-        flushEvents();
-      }, mergedConfig.flushInterval);
-    }
-
-    return () => {
-      if (flushIntervalRef.current) {
-        clearInterval(flushIntervalRef.current);
-      }
-      // Flush remaining events on unmount
-      flushEvents();
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const initializedRef = useRef(false);
 
   /**
    * Flush queued events
@@ -125,11 +97,15 @@ export function useAnalytics(config: Partial<AnalyticsConfig> = {}) {
       console.log('[Analytics] Flushing events:', events);
     }
 
-    // Store in localStorage for development/debugging
-    if (typeof window !== 'undefined') {
-      const stored = JSON.parse(localStorage.getItem('vs_analytics') || '[]');
-      const updated = [...stored, ...events].slice(-100); // Keep last 100 events
-      localStorage.setItem('vs_analytics', JSON.stringify(updated));
+    // Store in localStorage for development/debugging ONLY
+    if (typeof window !== 'undefined' && mergedConfig.storeLocally) {
+      try {
+        const stored = JSON.parse(localStorage.getItem('vs_analytics') || '[]');
+        const updated = [...stored, ...events].slice(-100); // Keep last 100 events
+        localStorage.setItem('vs_analytics', JSON.stringify(updated));
+      } catch {
+        // localStorage may be unavailable
+      }
     }
 
     // If endpoint is configured, send to backend
@@ -146,7 +122,7 @@ export function useAnalytics(config: Partial<AnalyticsConfig> = {}) {
         }
       });
     }
-  }, [mergedConfig.debug, mergedConfig.endpoint]);
+  }, [mergedConfig.debug, mergedConfig.endpoint, mergedConfig.storeLocally]);
 
   /**
    * Track an analytics event
@@ -183,6 +159,48 @@ export function useAnalytics(config: Partial<AnalyticsConfig> = {}) {
       flushEvents();
     }
   }, [mergedConfig.enabled, mergedConfig.debug, mergedConfig.batchSize, flushEvents]);
+
+  // Initialize session ID and set up flush interval
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (initializedRef.current) return; // Prevent double initialization
+    initializedRef.current = true;
+    
+    // Try to restore session from sessionStorage, or create new
+    let sessionId = sessionStorage.getItem('vs_session_id');
+    if (!sessionId) {
+      sessionId = generateSessionId();
+      sessionStorage.setItem('vs_session_id', sessionId);
+    }
+    sessionIdRef.current = sessionId;
+    setIsInitialized(true);
+
+    // Set up flush interval
+    if (mergedConfig.flushInterval > 0) {
+      flushIntervalRef.current = setInterval(() => {
+        flushEvents();
+      }, mergedConfig.flushInterval);
+    }
+
+    return () => {
+      if (flushIntervalRef.current) {
+        clearInterval(flushIntervalRef.current);
+      }
+      // Flush remaining events on unmount
+      flushEvents();
+    };
+  }, [mergedConfig.flushInterval, flushEvents]);
+
+  // Track initial page view separately after initialization
+  useEffect(() => {
+    if (!isInitialized || !mergedConfig.enabled) return;
+    
+    // Track page view with privacy-safe data only
+    trackEvent('page_view', {
+      path: window.location.pathname,
+      referrer: document.referrer ? new URL(document.referrer).hostname : undefined,
+    });
+  }, [isInitialized, mergedConfig.enabled, trackEvent]);
 
   /**
    * Track product view (gallery navigation)

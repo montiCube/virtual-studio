@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2026-01-31
+
+### Fixed
+
+**Spatial Audio (`hooks/useSpatialAudio.ts`):**
+- Fixed race condition in crossfade when rapidly switching vibes
+- Added abort mechanism to prevent audio operations on unmounted components
+- Queued crossfade requests now process sequentially
+
+**Analytics (`hooks/useAnalytics.ts`):**
+- Removed UserAgent tracking (privacy improvement - no fingerprinting)
+- Fixed stale closure issue in initialization effect
+- Made localStorage storage development-only by default
+- Referrer now only stores hostname (not full URL)
+- Added proper double-initialization prevention
+
+**Service Worker (`public/sw.js`):**
+- Changed URL matching from `.includes()` to strict prefix matching
+- Prevents false positives like `/checkoutpage` being blocked
+
+### Security
+
+- Analytics no longer collects browser fingerprinting data
+- Local analytics storage disabled by default in production
+
 ## [1.4.0] - 2026-01-31
 
 ### Added
