@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-01-31
+
+### Added
+
+#### MCP Server for Art Display (`mcp/`)
+
+A new Model Context Protocol (MCP) server enabling AI assistants to prepare stunning art pieces for spatial display on Rokid Station 2 and other WebXR devices.
+
+**MCP Tools:**
+- **prepare_art_piece** - Configure art with optimal framing, lighting, and positioning for immersive viewing
+- **configure_frame** - Create procedural frames (modern, classic, minimalist, ornate, floating)
+- **create_gallery_layout** - Arrange multiple pieces in immersive 3D room environments (living-room, bedroom, studio, custom)
+- **optimize_for_spatial** - Device-specific optimization for Rokid Station 2, Meta Quest, mobile, and desktop
+- **get_display_config** - Export TypeScript configuration ready for Virtual Studio integration
+- **suggest_vibe_pairing** - AI-powered audio and lighting recommendations based on artwork characteristics
+- **list_art_pieces** - List all prepared art pieces in the current session
+
+**MCP Resources:**
+- `virtual-studio://config/rokid-station-2` - Optimal display settings for Rokid Station 2
+- `virtual-studio://config/frame-styles` - Available procedural frame styles and color palettes
+- `virtual-studio://config/room-templates` - VR room templates for gallery layouts
+
+**MCP Prompts:**
+- **create_art_gallery** - Guided workflow for creating a complete art gallery display
+- **optimize_for_rokid** - Recommendations for optimizing art display on Rokid Station 2
+
+#### Rokid Station 2 Optimization
+- Texture size optimization (1024x1024 max for performance)
+- D-Pad navigation mapping for Rokid remote control
+- AR passthrough mode configuration
+- 60 FPS performance targeting with adaptive quality settings
+
+### Security
+- Updated `@modelcontextprotocol/sdk` to v1.25.2 to fix ReDoS and DNS rebinding vulnerabilities
+
+### Configuration
+- Updated `tsconfig.json` to exclude MCP directory from main Next.js compilation
+- Added MCP integration documentation to README.md
+
 ## [1.1.0] - 2026-01-30
 
 ### Added
